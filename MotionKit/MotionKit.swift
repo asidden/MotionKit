@@ -157,6 +157,7 @@ import CoreMotion
     /*  MARK :- DEVICE MOTION APPROACH STARTS HERE  */
     
     /*
+    *  getDeviceMotionValues:interval:using:values:
     *  getDeviceMotionValues:interval:values:
     *
     *  Discussion:
@@ -165,11 +166,12 @@ import CoreMotion
     *   attitudeReferenceFrame to determine this. You can access the retrieved values either by a
     *   Trailing Closure or through a Delegate.
     */
-    public func getDeviceMotionObject (_ interval: TimeInterval = 0.1, values: ((_ deviceMotion: CMDeviceMotion) -> ())? ) {
+    public func getDeviceMotionObject (_ interval: TimeInterval = 0.1, using referenceFrame: CMAttitudeReferenceFrame? = nil, values: ((_ deviceMotion: CMDeviceMotion) -> ())? ) {
         
         if manager.isDeviceMotionAvailable{
             manager.deviceMotionUpdateInterval = interval
-            manager.startDeviceMotionUpdates(to: OperationQueue()){
+            
+            let handler: CoreMotion.CMDeviceMotionHandler = {
                 (data, error) in
                 
                 if let isError = error{
@@ -180,6 +182,13 @@ import CoreMotion
                 }
                 self.delegate?.retrieveDeviceMotionObject!(data!)
             }
+
+            if let refFrame = referenceFrame {
+                manager.startDeviceMotionUpdates(using: refFrame, to: OperationQueue(), withHandler: handler)
+            } else {
+                manager.startDeviceMotionUpdates(to: OperationQueue(), withHandler: handler)
+            }
+            
             
         } else {
             NSLog("Device Motion is not available")
