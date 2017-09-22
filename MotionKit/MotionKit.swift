@@ -28,6 +28,7 @@ import CoreMotion
 }
 
 
+@objcMembers
 @objc(MotionKit) public class MotionKit :NSObject{
     
     let manager = CMMotionManager()
